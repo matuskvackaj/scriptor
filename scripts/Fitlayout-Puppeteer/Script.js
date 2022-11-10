@@ -11,6 +11,7 @@ const SCRIPT_OPTIONS_VIEWPORT_ADJUST = "viewportAdjust";                   // Op
 const SCRIPT_OPTIONS_SNAPSHOT = "snapshot";                                // Optional. Passed to pages.takeSnapshot for taking the snapshot
 const SCRIPT_OPTION_WAIT_EVENT = "waitEvent";                              // Optional. The event to wait for before adjusting the viewport. Use 'domcontentloaded' to *not* wait for external resources. Default: 'load'
 const SCRIPT_OPTION_WAIT_NETWORK_MILLISECONDS = "waitNetworkMilliseconds"; // Optional. The number of milliseconds to wait before adjusting the viewport and (again) taking the snapshot. Default: 30000
+const EVAL_TIMEOUT = 30;
 
 module.exports = class extends AbstractScriptorScript {
 
@@ -779,14 +780,20 @@ module.exports = class extends AbstractScriptorScript {
         // wait for evaluation to complete
         let pg = await Promise.race([pageTask, timerTask]);
         clearTimeout(timerId);
-
+        //NOTE ADD SUPPORT FOR SCREENSHOT
+        /*
         // add a screenshot if it was required
-        if (argv.s && screenShot !== null) {
+        //NOTE we may add this as program parameter (original implementation did)
+        //if (argv.s && screenShot !== null) {
+        if (screenShot !== null) {
             pg.screenshot = screenShot;
         }
 
         // capture the images if required
-        if (argv.I && pg.images) {
+        //NOTE removed argv.I for now
+        //if (argv.I && pg.images) {
+    
+        if (pg.images) {
             // hide the contents of the marked elemens
             await page.addStyleTag({ content: '[data-fitlayoutbg="1"] * { display: none }' });
             // take the screenshots
@@ -822,11 +829,13 @@ module.exports = class extends AbstractScriptorScript {
                 }
             }
         }
-
+        */
+        //NOTE add support for this parameter
+        /*
         if (!argv.C) {
             await browser.close();
         }
-
+        */
         if (lastResponse) {
             pg.status = lastResponse._status;
             pg.statusText = lastResponse._statusText;
