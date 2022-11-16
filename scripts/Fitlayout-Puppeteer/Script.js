@@ -11,6 +11,7 @@ const SCRIPT_OPTIONS_VIEWPORT_ADJUST = "viewportAdjust";                   // Op
 const SCRIPT_OPTIONS_SNAPSHOT = "snapshot";                                // Optional. Passed to pages.takeSnapshot for taking the snapshot
 const SCRIPT_OPTION_WAIT_EVENT = "waitEvent";                              // Optional. The event to wait for before adjusting the viewport. Use 'domcontentloaded' to *not* wait for external resources. Default: 'load'
 const SCRIPT_OPTION_WAIT_NETWORK_MILLISECONDS = "waitNetworkMilliseconds"; // Optional. The number of milliseconds to wait before adjusting the viewport and (again) taking the snapshot. Default: 30000
+//const SCRIPT_OPTION_
 const EVAL_TIMEOUT = 30;
 
 module.exports = class extends AbstractScriptorScript {
@@ -755,6 +756,7 @@ module.exports = class extends AbstractScriptorScript {
                         }
                     }
                 }
+                
 
                 markXPaths(document.body, '//body[1]');
                 unmix(document.body);
@@ -780,6 +782,11 @@ module.exports = class extends AbstractScriptorScript {
         // wait for evaluation to complete
         let pg = await Promise.race([pageTask, timerTask]);
         clearTimeout(timerId);
+
+        log.info('MK ' + scriptOptions['snapshot']);
+        log.info('MK ' + scriptOptions['images']);
+        log.info('MK ' + scriptOptions['closeBrowser']);
+        log.info('MK ' + JSON.stringify(scriptOptions));
         //NOTE ADD SUPPORT FOR SCREENSHOT
         /*
         // add a screenshot if it was required
