@@ -12,7 +12,7 @@
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}/bin/scriptor.js",
-            "args": ["--script-directory","../scripts/Fitlayout-Puppeteer/","--output-directory","../bin/output36","--input","{\"url\":\"https://www.google.com\"}","-S","-I","-C"]
+            "args": ["--script-directory","${workspaceFolder}/scripts/Fitlayout-Puppeteer/","--output-directory","${workspaceFolder}/bin/output44","--input","{\"url\":\"https://www.google.com\"}","-S","-I","-C"]
         }
     ]
 }

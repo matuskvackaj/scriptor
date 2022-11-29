@@ -1,5 +1,7 @@
 const fs = require("fs-extra");
 const path = require('path');
+//const cli = require("../../lib/cli");
+//const cli = require("/home/Desktop/bakalarka/scriptor/bin/scriptor.js");
 
 const { AbstractScriptorScript, files, pages, log } = require('@webis-de/scriptor');
 
@@ -11,6 +13,11 @@ const SCRIPT_OPTIONS_VIEWPORT_ADJUST = "viewportAdjust";                   // Op
 const SCRIPT_OPTIONS_SNAPSHOT = "snapshot";                                // Optional. Passed to pages.takeSnapshot for taking the snapshot
 const SCRIPT_OPTION_WAIT_EVENT = "waitEvent";                              // Optional. The event to wait for before adjusting the viewport. Use 'domcontentloaded' to *not* wait for external resources. Default: 'load'
 const SCRIPT_OPTION_WAIT_NETWORK_MILLISECONDS = "waitNetworkMilliseconds"; // Optional. The number of milliseconds to wait before adjusting the viewport and (again) taking the snapshot. Default: 30000
+
+//added
+const SCRIPT_OPTIONS_IMAGES = 'images';
+const SCRIPT_OPTIONS_CLOSE_BROWSER = 'closeBrowser';
+
 //const SCRIPT_OPTION_
 const EVAL_TIMEOUT = 30;
 
@@ -21,6 +28,14 @@ module.exports = class extends AbstractScriptorScript {
     }
 
     async run(browserContexts, scriptDirectory, inputDirectory, outputDirectory) {
+        //const runOptions = cli.getRunOptions(options);
+        // Methods to display directory
+        console.log("__dirname:    ", __dirname);
+        console.log("process.cwd() : ", process.cwd());
+        console.log("./ : ", path.resolve("./"));
+        console.log("filename: ", __filename);
+        console.log("../ : ", path.resolve("../"));
+        console.log("../../ : ", path.resolve("../"));
 
 
         const browserContext = browserContexts[files.BROWSER_CONTEXT_DEFAULT];
@@ -31,6 +46,11 @@ module.exports = class extends AbstractScriptorScript {
         defaultScriptOptions[SCRIPT_OPTIONS_VIEWPORT_ADJUST] = {}
         defaultScriptOptions[SCRIPT_OPTION_WAIT_EVENT] = 'load';
         defaultScriptOptions[SCRIPT_OPTION_WAIT_NETWORK_MILLISECONDS] = 30000;
+        defaultScriptOptions[SCRIPT_OPTIONS_SNAPSHOT] = true;
+        defaultScriptOptions[SCRIPT_OPTION_WAIT_EVENT] = true;
+        defaultScriptOptions[SCRIPT_OPTION_WAIT_NETWORK_MILLISECONDS] = true;
+        defaultScriptOptions[SCRIPT_OPTIONS_IMAGES] = true;
+        defaultScriptOptions[SCRIPT_OPTIONS_CLOSE_BROWSER] = true;
 
         // Get script options
         const scriptOptions = files.readOptions(files.getExisting(
@@ -47,6 +67,12 @@ module.exports = class extends AbstractScriptorScript {
         const waitEvent = scriptOptions[SCRIPT_OPTION_WAIT_EVENT];
         const waitNetworkMilliseconds =
             scriptOptions[SCRIPT_OPTION_WAIT_NETWORK_MILLISECONDS];
+
+        //added
+        const takeSnapshot = scriptOptions[SCRIPT_OPTIONS_SNAPSHOT];
+        console.log('\n\n\nTAKE SNAPSHOT: ' + takeSnapshot + '\n\n\n');
+        const takeImages = scriptOptions[SCRIPT_OPTIONS_IMAGES];
+        const closeBrowser = scriptOptions[SCRIPT_OPTIONS_CLOSE_BROWSER];
 
         const page = await browserContext.newPage();
         page.setDefaultTimeout(0); // disable timeouts
@@ -783,24 +809,19 @@ module.exports = class extends AbstractScriptorScript {
         let pg = await Promise.race([pageTask, timerTask]);
         clearTimeout(timerId);
 
-        log.info('MK ' + scriptOptions['snapshot']);
-        log.info('MK ' + scriptOptions['images']);
-        log.info('MK ' + scriptOptions['closeBrowser']);
-        log.info('MK ' + JSON.stringify(scriptOptions));
+        log.info('MK ' + takeSnapshot);
+        log.info('MK ' + takeImages);
+        log.info('MK ' + closeBrowser);
+        //log.info('MK ' + JSON.stringify(scriptOptions));
         //NOTE ADD SUPPORT FOR SCREENSHOT
-        /*
         // add a screenshot if it was required
         //NOTE we may add this as program parameter (original implementation did)
-        //if (argv.s && screenShot !== null) {
-        if (screenShot !== null) {
+        if (takeSnapshot && screenShot !== null) {
             pg.screenshot = screenShot;
         }
 
         // capture the images if required
-        //NOTE removed argv.I for now
-        //if (argv.I && pg.images) {
-    
-        if (pg.images) {
+        if (takeImages && pg.images) {
             // hide the contents of the marked elemens
             await page.addStyleTag({ content: '[data-fitlayoutbg="1"] * { display: none }' });
             // take the screenshots
@@ -836,13 +857,10 @@ module.exports = class extends AbstractScriptorScript {
                 }
             }
         }
-        */
-        //NOTE add support for this parameter
-        /*
-        if (!argv.C) {
+
+        if (!closeBrowser) {
             await browser.close();
         }
-        */
         if (lastResponse) {
             pg.status = lastResponse._status;
             pg.statusText = lastResponse._statusText;
