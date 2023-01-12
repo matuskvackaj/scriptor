@@ -1,0 +1,9 @@
+{
+    "viewportAdjust": {},
+    "waitEvent": true,
+    "waitNetworkMilliseconds": true,
+    "snapshot": true,
+    "images": true,
+    "keepBrowser": false,
+    "url": "https://www.google.com"
+}

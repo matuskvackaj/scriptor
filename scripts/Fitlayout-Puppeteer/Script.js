@@ -13,10 +13,8 @@ const SCRIPT_OPTIONS_VIEWPORT_ADJUST = "viewportAdjust";                   // Op
 const SCRIPT_OPTIONS_SNAPSHOT = "snapshot";                                // Optional. Passed to pages.takeSnapshot for taking the snapshot
 const SCRIPT_OPTION_WAIT_EVENT = "waitEvent";                              // Optional. The event to wait for before adjusting the viewport. Use 'domcontentloaded' to *not* wait for external resources. Default: 'load'
 const SCRIPT_OPTION_WAIT_NETWORK_MILLISECONDS = "waitNetworkMilliseconds"; // Optional. The number of milliseconds to wait before adjusting the viewport and (again) taking the snapshot. Default: 30000
-
-//added
-const SCRIPT_OPTIONS_IMAGES = 'images';
-const SCRIPT_OPTIONS_CLOSE_BROWSER = 'closeBrowser';
+const SCRIPT_OPTIONS_IMAGES = 'images';                                    // Optional. Saves all the images
+const SCRIPT_OPTIONS_KEEP_BROWSER = 'keepBrowser';                         
 
 //const SCRIPT_OPTION_
 const EVAL_TIMEOUT = 30;
@@ -28,18 +26,12 @@ module.exports = class extends AbstractScriptorScript {
     }
 
     async run(browserContexts, scriptDirectory, inputDirectory, outputDirectory) {
-        //const runOptions = cli.getRunOptions(options);
-        // Methods to display directory
-        console.log("__dirname:    ", __dirname);
-        console.log("process.cwd() : ", process.cwd());
-        console.log("./ : ", path.resolve("./"));
-        console.log("filename: ", __filename);
-        console.log("../ : ", path.resolve("../"));
-        console.log("../../ : ", path.resolve("../"));
-
-
         const browserContext = browserContexts[files.BROWSER_CONTEXT_DEFAULT];
-
+        /*
+        console.log('\n\nMK INPUT DIRECTORY: ' + inputDirectory);
+        console.log('\n\nMK SCRIPT DIRECTORY: ' + scriptDirectory);
+        console.log('\n\nMK OUTPUTDIRECTORY: ' + outputDirectory + '\n\n');
+        */
         // Define script options
         const requiredScriptOptions = [SCRIPT_OPTION_URL];
         const defaultScriptOptions = {};
@@ -49,14 +41,22 @@ module.exports = class extends AbstractScriptorScript {
         defaultScriptOptions[SCRIPT_OPTIONS_SNAPSHOT] = true;
         defaultScriptOptions[SCRIPT_OPTION_WAIT_EVENT] = true;
         defaultScriptOptions[SCRIPT_OPTION_WAIT_NETWORK_MILLISECONDS] = true;
-        defaultScriptOptions[SCRIPT_OPTIONS_IMAGES] = true;
-        defaultScriptOptions[SCRIPT_OPTIONS_CLOSE_BROWSER] = true;
+        defaultScriptOptions[SCRIPT_OPTIONS_IMAGES] = false;
+        defaultScriptOptions[SCRIPT_OPTIONS_KEEP_BROWSER] = false;
 
         // Get script options
         const scriptOptions = files.readOptions(files.getExisting(
             files.SCRIPT_OPTIONS_FILE_NAME, [scriptDirectory, inputDirectory]),
             defaultScriptOptions, requiredScriptOptions);
         log.info({ options: scriptOptions }, "script.options");
+        log.info("mk.script.options");
+        console.log('files.SCRIPT_OPTIONS_FILE_NAME ' + files.SCRIPT_OPTIONS_FILE_NAME)
+        console.log('scriptDirectory ' + scriptDirectory)
+        console.log('inputDirectory ' + inputDirectory);
+        console.log('outputDirectory ' + outputDirectory);
+        console.log('defaultScriptOptions ' + JSON.stringify(defaultScriptOptions));
+        console.log('requiredScriptOptions ' + JSON.stringify(requiredScriptOptions));
+        console.log('\n\n\nscript options: ' + JSON.stringify(scriptOptions) + '\n\n\n');
         fs.writeJsonSync( // store options for provenance
             path.join(outputDirectory, files.SCRIPT_OPTIONS_FILE_NAME), scriptOptions);
         const url = scriptOptions[SCRIPT_OPTION_URL];
@@ -72,7 +72,7 @@ module.exports = class extends AbstractScriptorScript {
         const takeSnapshot = scriptOptions[SCRIPT_OPTIONS_SNAPSHOT];
         console.log('\n\n\nTAKE SNAPSHOT: ' + takeSnapshot + '\n\n\n');
         const takeImages = scriptOptions[SCRIPT_OPTIONS_IMAGES];
-        const closeBrowser = scriptOptions[SCRIPT_OPTIONS_CLOSE_BROWSER];
+        const keepBrowser = scriptOptions[SCRIPT_OPTIONS_KEEP_BROWSER];
 
         const page = await browserContext.newPage();
         page.setDefaultTimeout(0); // disable timeouts
@@ -132,10 +132,17 @@ module.exports = class extends AbstractScriptorScript {
         //page.on('console', msg => console.log('PAGE LOG:', msg.text() + '\n'));
 
         //always take a screenshot in order to get the whole page into the viewport
+        /*
         let screenShot = await page.screenshot({
             type: "png",
             fullPage: true,
             encoding: "base64"
+        });
+        */
+
+        let screenShot = await page.screenshot({
+            type: "png",
+            fullPage : true
         });
 
         // a task that produces the page tree
@@ -811,13 +818,17 @@ module.exports = class extends AbstractScriptorScript {
 
         log.info('MK ' + takeSnapshot);
         log.info('MK ' + takeImages);
-        log.info('MK ' + closeBrowser);
+        log.info('MK ' + keepBrowser);
         //log.info('MK ' + JSON.stringify(scriptOptions));
         //NOTE ADD SUPPORT FOR SCREENSHOT
         // add a screenshot if it was required
         //NOTE we may add this as program parameter (original implementation did)
         if (takeSnapshot && screenShot !== null) {
-            pg.screenshot = screenShot;
+            //pg.screenshot = screenShot;
+            //string representation of the screenshot
+            pg.screenshot = screenShot.toString('base64');
+            //image
+            await pages.takeSnapshot(page,optionsSnapshot);
         }
 
         // capture the images if required
@@ -838,13 +849,13 @@ module.exports = class extends AbstractScriptorScript {
                     }
 
                     let elem = await page.$(selector);
+                    //DOESN'T WORK, THIS NEEDS A REWORK
                     if (elem !== null) {
-                        img.data = await elem.screenshot({
-                            type: "png",
-                            encoding: "base64"
+                        let image = await elem.screenshot({
                         });
-                    }
 
+                        //img.data = image.toString('base64');
+                    }
                     if (img.bg) {
                         //for background images switch the contents on again
                         await page.$eval(selector, e => {
@@ -857,10 +868,11 @@ module.exports = class extends AbstractScriptorScript {
                 }
             }
         }
-
-        if (!closeBrowser) {
-            await browser.close();
+        //omitting images if the switch Images wasn't set
+        else{
+            delete pg.images;
         }
+
         if (lastResponse) {
             pg.status = lastResponse._status;
             pg.statusText = lastResponse._statusText;
@@ -870,6 +882,9 @@ module.exports = class extends AbstractScriptorScript {
         }
 
         process.stdout.write(JSON.stringify(pg));
+        fs.mkdirSync(path.join(outputDirectory,'/text output'))
+        fs.writeJsonSync(path.join(outputDirectory,'/text output/text_output.json'),pg);
+        log.info('mk.outputDirectory' + outputDirectory)
     };
 };
 
