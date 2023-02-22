@@ -847,15 +847,25 @@ module.exports = class extends AbstractScriptorScript {
                             e.setAttribute('data-fitlayoutbg', '1');
                         });
                     }
-
+                    
+                    let image = await page.locator(selector).screenshot({'timeout' : 5000});
+                    img.data = image.toString('base64');
+                    //original
+                    /*
                     let elem = await page.$(selector);
                     //DOESN'T WORK, THIS NEEDS A REWORK
+                    //10000 seems ok
+                    //5000 
                     if (elem !== null) {
+                        console.log('elem: ' + elem);
+                        //i added the type
                         let image = await elem.screenshot({
+                            "timeout" : 5000
                         });
-
-                        //img.data = image.toString('base64');
+                        
+                        img.data = image.toString('base64');
                     }
+                    */
                     if (img.bg) {
                         //for background images switch the contents on again
                         await page.$eval(selector, e => {
