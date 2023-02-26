@@ -65,6 +65,7 @@ module.exports = class extends AbstractScriptorScript {
     await pages.waitForNetworkIdleMax(page, waitNetworkMilliseconds);
 
     // Take snapshot
+    log.info({optionsSnapshot},"script.optionsSnapshot")
     await pages.takeSnapshot(page, optionsSnapshot);
     log.info("script.done");
     return true;

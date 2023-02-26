@@ -68,8 +68,8 @@ for subdir in "$tempdir"/*; do
         echo "archiveAbsPath: $archiveAbsPath"
         echo "dirAbsPath: $dirAbsPath"
         echo "$dirAbsPath$counter"
-        #docker run -i --rm --volume $scriptPath:/script:ro --volume $dirAbsPath/output$counter:/output --volume $subdirAbsPath:/input:ro  $container --input "{\"snapshot\": false, \"images\": false, \"keepBrowser\": false, \"url\": \"$pageUrl\"}" --replay --warc-input /input
-        docker run -i --rm --volume /home/matus/Desktop/bakalarka/scriptor/scripts/Snapshot:/script:ro --volume $dirAbsPath/output$counter:/output --volume $subdirAbsPath:/input:ro  $container --input "{\"snapshot\": false, \"images\": false, \"keepBrowser\": false, \"url\": \"$pageUrl\"}" --replay --warc-input /input
+        docker run -i --rm --volume $scriptPath:/script:ro --volume $dirAbsPath/output$counter:/output --volume $subdirAbsPath:/input:ro  $container --input "{\"snapshot\": true, \"images\": false, \"keepBrowser\": false, \"url\": \"$pageUrl\"}" --replay --warc-input /input
+        #docker run -i --rm --volume /home/matus/Desktop/bakalarka/scriptor/scripts/Snapshot:/script:ro --volume $dirAbsPath/output$counter:/output --volume $subdirAbsPath:/input:ro  $container --input "{\"snapshot\": false, \"images\": false, \"keepBrowser\": false, \"url\": \"$pageUrl\"}" --replay --warc-input /input
         mv $dirAbsPath/output$counter $subdirAbsPath
         ((counter=counter+1))
       done

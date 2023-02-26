@@ -110,7 +110,7 @@ module.exports = class extends AbstractScriptorScript {
         //NOTE from fitlayout
         let wwidth = 1200;
         //NOTE waitOptions from FLP default option (can be changed via CLI)
-        let waitOptions = { waitUntil: 'load', timeout: 15000 };
+        let waitOptions = { waitUntil: 'load', timeout: 30000 };
         //store the last http response
         page.on('response', resp => {
             lastResponse = resp;
@@ -119,9 +119,15 @@ module.exports = class extends AbstractScriptorScript {
         //NOTE renamed targetUrl to url
         try {
             await page.goto(url, waitOptions);
-            let totalHeight = await scrollDown(page, scrollPages);
+            await pages.waitForNetworkIdleMax(page, waitNetworkMilliseconds); //ADDED
+            log.info("waitNetworkMilliseconds: " + waitNetworkMilliseconds);
+            //let totalHeight = await scrollDown(page, scrollPages);  ADDED COMMENTED OUT
             //await page.setViewport({ width: wwidth, height: totalHeight, deviceScaleFactor: 1 });
-            await page.setViewportSize({ width: wwidth, height: totalHeight });
+            //await page.setViewportSize({ width: wwidth, height: totalHeight }); //ORIGINAL
+            await pages.adjustViewportToPage(page, optionsViewportAdjust); //ADDED
+            await page.waitForTimeout(1000); //ADDED
+            log.info("script.pageAdjusted");
+            await pages.waitForNetworkIdleMax(page, waitNetworkMilliseconds); //ADDED
             //await page.waitForNavigation(waitOptions);
         } catch (e) {
             //NOTE changed consolelog from FLP to lib call
@@ -826,9 +832,13 @@ module.exports = class extends AbstractScriptorScript {
         if (takeSnapshot && screenShot !== null) {
             //pg.screenshot = screenShot;
             //string representation of the screenshot
-            pg.screenshot = screenShot.toString('base64');
+            pg.screenshot = screenShot.toString('base64'); 
+            //let buffer = Buffer.from(pg.screenshot,"base64")
+            fs.mkdirSync(path.join(outputDirectory,'/snapshot'))
+            //fs.writeJsonSync(path.join(outputDirectory,'/text output/text_output.json'),pg);
+            fs.writeFileSync(path.join(outputDirectory,'/snapshot/snapshot.png'),screenShot);
             //image
-            await pages.takeSnapshot(page,optionsSnapshot);
+            //await pages.takeSnapshot(page,optionsSnapshot);
         }
 
         // capture the images if required
