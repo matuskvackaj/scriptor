@@ -27,11 +27,6 @@ module.exports = class extends AbstractScriptorScript {
 
     async run(browserContexts, scriptDirectory, inputDirectory, outputDirectory) {
         const browserContext = browserContexts[files.BROWSER_CONTEXT_DEFAULT];
-        /*
-        console.log('\n\nMK INPUT DIRECTORY: ' + inputDirectory);
-        console.log('\n\nMK SCRIPT DIRECTORY: ' + scriptDirectory);
-        console.log('\n\nMK OUTPUTDIRECTORY: ' + outputDirectory + '\n\n');
-        */
         // Define script options
         const requiredScriptOptions = [SCRIPT_OPTION_URL];
         const defaultScriptOptions = {};
@@ -49,14 +44,13 @@ module.exports = class extends AbstractScriptorScript {
             files.SCRIPT_OPTIONS_FILE_NAME, [scriptDirectory, inputDirectory]),
             defaultScriptOptions, requiredScriptOptions);
         log.info({ options: scriptOptions }, "script.options");
-        log.info("mk.script.options");
-        console.log('files.SCRIPT_OPTIONS_FILE_NAME ' + files.SCRIPT_OPTIONS_FILE_NAME)
-        console.log('scriptDirectory ' + scriptDirectory)
-        console.log('inputDirectory ' + inputDirectory);
-        console.log('outputDirectory ' + outputDirectory);
-        console.log('defaultScriptOptions ' + JSON.stringify(defaultScriptOptions));
-        console.log('requiredScriptOptions ' + JSON.stringify(requiredScriptOptions));
-        console.log('\n\n\nscript options: ' + JSON.stringify(scriptOptions) + '\n\n\n');
+        log.info('files.SCRIPT_OPTIONS_FILE_NAME: ' + files.SCRIPT_OPTIONS_FILE_NAME);
+        log.info('scriptDirectory: ' + scriptDirectory)
+        log.info('inputDirectory: ' + inputDirectory);
+        log.info('outputDirectory: ' + outputDirectory);
+        log.info('defaultScriptOptions: ' + JSON.stringify(defaultScriptOptions));
+        log.info('requiredScriptOptions: ' + JSON.stringify(requiredScriptOptions));
+        log.info('script options: ' + JSON.stringify(scriptOptions));
         fs.writeJsonSync( // store options for provenance
             path.join(outputDirectory, files.SCRIPT_OPTIONS_FILE_NAME), scriptOptions);
         const url = scriptOptions[SCRIPT_OPTION_URL];
@@ -822,9 +816,9 @@ module.exports = class extends AbstractScriptorScript {
         let pg = await Promise.race([pageTask, timerTask]);
         clearTimeout(timerId);
 
-        log.info('MK ' + takeSnapshot);
-        log.info('MK ' + takeImages);
-        log.info('MK ' + keepBrowser);
+        log.info('fitlayout.takeSnapshot: ' + takeSnapshot);
+        log.info('fitlayout.takeImages: ' + takeImages);
+        log.info('fitlayout.keepBrowser: ' + keepBrowser);
         //log.info('MK ' + JSON.stringify(scriptOptions));
         //NOTE ADD SUPPORT FOR SCREENSHOT
         // add a screenshot if it was required
@@ -904,7 +898,7 @@ module.exports = class extends AbstractScriptorScript {
         process.stdout.write(JSON.stringify(pg));
         fs.mkdirSync(path.join(outputDirectory,'/text output'))
         fs.writeJsonSync(path.join(outputDirectory,'/text output/text_output.json'),pg);
-        log.info('mk.outputDirectory' + outputDirectory)
+        log.info('outputDirectory' + outputDirectory)
     };
 };
 

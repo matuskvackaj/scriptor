@@ -19,7 +19,7 @@ RUN pip3 install \
 RUN mkdir /scriptor /output
 ENV NODE_PATH=/usr/lib/node_modules:/scriptor/node_modules:/script/node_modules
 #COPY scripts/Snapshot /script
-COPY scripts/Fitlayout-Puppeteer /script
+COPY scripts/Fitlayout /script
 
 # Installing this package
 WORKDIR /scriptor

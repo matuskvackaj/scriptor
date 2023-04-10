@@ -15,7 +15,6 @@ const log = require('../lib/log.js');
 const dockerEntrypoint = true;
 const options = cli.parse(dockerEntrypoint);
 log.info({ options: options }, "entrypoint");
-log.info('mk.entrypoint');
 
 try {
   const scriptDirectory = cli.getScriptDirectory(options);
