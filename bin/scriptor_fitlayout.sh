@@ -1,8 +1,6 @@
 #!/bin/bash
 CONTAINER="scriptor_fitlayout"
 SCRIPT_PATH="../scripts/Fitlayout"
-INPUT_DIR="./"
-
 
 # set default values for optional arguments
 s=false
@@ -13,7 +11,19 @@ k=false
 while getopts "ho:siku:wr:" opt; do
   case ${opt} in
     h )
-      echo "Usage: $(basename $0) [-h] -o <directory> [-s] [-i] [-k] (-w <string> OR -r <string>)"
+      echo "This shell script serves as a wrapper for Scriptor-Fitlayout docker."
+      echo 
+      echo "Mode of recording a .warc archive based on a url:"
+      echo "$(basename $0) -o <output directory> -u <webpage url> -w [-s] [-i] [-k]"
+      echo "Usage: sudo $(basename $0) [-h] -o <directory> [-s] [-i] [-k] (-w <string> OR -r <string>)"
+      echo 
+      echo "Mode of replaying a .warc archive:"
+      echo "sudo $(basename $0) -o <output directory> -u <webpage url> -r <directory with .warc file> [-s] [-i] [-k]"
+      echo 
+      echo "Optional parameters"
+      echo "-s : saves a screenshot of the page"
+      echo "-i : saves images to the text output"
+      echo "-k : keeps browser alive after execution"
       exit 0
       ;;
     o )
@@ -81,7 +91,6 @@ fi
 
 #convert paths to absolute paths
 scriptAbsolutePath=$(readlink -f "$SCRIPT_PATH")
-inputDirAbsolutePath=$(readlink -f "$INPUT_DIR")
 
 if [ "${outputDirectory:0:1}" != "/" ]; then
     outputDirectory=$(readlink -f "$outputDirectory")
